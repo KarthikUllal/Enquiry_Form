@@ -37,7 +37,7 @@ export default function EnquiryList({ data, onEdit, onDelete }) {
                 <td>
                   <button
                     className="edit-btn"
-                    onClick={() => onEdit(item)}
+                    onClick={() =>{onEdit(item)}}
                   >
                     Edit
                   </button>

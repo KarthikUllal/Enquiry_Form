@@ -14,21 +14,47 @@ export default function Enquiry() {
     message: "",
   });
 
+  //useState for editing
+  const [editId, setEditId] = useState(null);
+
+  //When user submits or edits enquiry
   const saveEnquiry = (e) => {
     e.preventDefault();
 
-    axios
-      .post("http://127.0.0.1:8000/api/web/enquiry/enquiry-insert", formData)
-      .then(() => {
-        toast.success("Enquiry saved successfully!");
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          message: "",
+    if (editId) {
+      // UPDATE
+      axios
+        .patch(
+          `http://127.0.0.1:8000/api/web/enquiry/enquiry-update/${editId}`,
+          formData,
+        )
+  
+        .then(() => {
+          setEditId(null);
+          setFormData({
+            name: "",
+            email: "",
+            phone: "",
+            message: "",
+          });
+          getAllEnquiry();
         });
-        getAllEnquiry();
-      });
+        toast.success("Enquiry Form updated")
+    } else {
+      // INSERT
+      axios
+        .post("http://127.0.0.1:8000/api/web/enquiry/enquiry-insert", formData)
+        .then(() => {
+          setFormData({
+            name: "",
+            email: "",
+            phone: "",
+            message: "",
+          });
+          getAllEnquiry();
+        });
+        toast.success("Enquiry Data Inserted")
+    }
   };
 
   const getValue = (e) => {
@@ -46,6 +72,29 @@ export default function Enquiry() {
           setEnquiryList(res.data.data);
         }
       });
+  };
+
+  //edit
+  const handleEdit = (item) => {
+    setFormData({
+      name: item.name,
+      email: item.email,
+      phone: item.phone,
+      message: item.phone,
+    });
+    setEditId(item._id);
+  };
+
+  //delete
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure?")) {
+      axios
+        .delete(`http://127.0.0.1:8000/api/web/enquiry/enquiry-delete/${id}`)
+        .then(() => {
+          getAllEnquiry();
+        });
+    }
+    toast.success("Enqiury Deleted")
   };
 
   useEffect(() => {
@@ -105,8 +154,8 @@ export default function Enquiry() {
         {/* ================= TABLE ================= */}
         <EnquiryList
           data={enquiryList}
-          onEdit={(item) => console.log("Edit:", item)}
-          onDelete={(id) => console.log("Delete:", id)}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
         />
       </div>
 
